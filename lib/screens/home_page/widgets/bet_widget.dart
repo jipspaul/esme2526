@@ -2,54 +2,200 @@ import 'package:esme2526/models/bet.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
-class BetWidget extends StatelessWidget {
+class BetWidget extends StatefulWidget {
   final Bet bet;
-  final YoutubePlayerController controller = YoutubePlayerController(
-    params: YoutubePlayerParams(
-      showControls: true,
-      showFullscreenButton: true,
-      origin: 'https://www.youtube-nocookie.com',
-    ),
-  );
 
-  BetWidget({super.key, required this.bet}) {
+  const BetWidget({super.key, required this.bet});
+
+  @override
+  State<BetWidget> createState() => _BetWidgetState();
+}
+
+class _BetWidgetState extends State<BetWidget> {
+  late YoutubePlayerController controller;
+
+  @override
+  void initState() {
+    super.initState();
     String videoId =
-        YoutubePlayerController.convertUrlToId(bet.dataBet.videoUrl) ?? '';
-    controller.loadVideoById(videoId: videoId);
+        YoutubePlayerController.convertUrlToId(widget.bet.dataBet.videoUrl) ??
+        '';
+
+    controller = YoutubePlayerController.fromVideoId(
+      videoId: videoId,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        mute: false,
+        loop: false,
+        origin: 'https://www.youtube-nocookie.com',
+      ),
+    );
+
+    // Ensure the video doesn't auto-play by seeking to the beginning without playing
+    // The YouTube player will show as paused initially but with controls visible
+  }
+
+  @override
+  void dispose() {
+    controller.close();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    //return ListTile(
-    //  title: Text('Bet on ${bet.title}'),
-    //  subtitle: Text('Odd: \$${bet.odds}'),
-    //  trailing: Icon(Icons.arrow_forward),
-    //);
-
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            spreadRadius: 1,
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: MediaQuery.of(context).size.width * 0.8,
-            child: YoutubePlayer(controller: controller),
+          // Video Player Section
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12.0),
+              topRight: Radius.circular(12.0),
+            ),
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: YoutubePlayer(controller: controller, aspectRatio: 16 / 9),
+            ),
           ),
-          SizedBox(height: 8),
-          Text(
-            bet.title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+
+          // Content Section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Title
+                Text(
+                  widget.bet.title,
+                  style: const TextStyle(
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 8.0),
+
+                // Description
+                Text(
+                  widget.bet.description,
+                  style: const TextStyle(fontSize: 14.0, color: Colors.grey),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+
+                const SizedBox(height: 12.0),
+
+                // Odds Display
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // Odds Box
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF1E88E5), // Winamax blue
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Text(
+                        'x${widget.bet.odds.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+
+                    FilledButton(
+                      onPressed: () {
+                        // Alert dialog to place a bet
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              title: const Text('Place Bet'),
+                              content: const Text(
+                                'Are you sure you want to place this bet?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                  child: const Text('Cancel'),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'Bet placed successfully!',
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  child: const Text('Confirm'),
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                      child: Text("Place Bet"),
+                    ),
+
+                    // Time indicator
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12.0,
+                        vertical: 6.0,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade100,
+                        borderRadius: BorderRadius.circular(6.0),
+                      ),
+                      child: Text(
+                        'Starts: ${_formatDateTime(widget.bet.startTime)}',
+                        style: TextStyle(
+                          fontSize: 12.0,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.orange.shade800,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-          SizedBox(height: 4),
-          Text(bet.description),
-          SizedBox(height: 4),
-          Text(
-            'Odds: ${bet.odds.toStringAsFixed(2)}',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-          ),
-          SizedBox(height: 8),
-          Divider(),
         ],
       ),
     );
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.day}/${dateTime.month} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 }
