@@ -7,6 +7,7 @@ import 'package:esme2526/models/bet.dart';
 import 'package:esme2526/models/user.dart';
 import 'package:esme2526/screens/home_page/home_page.dart';
 import 'package:esme2526/screens/profile_widget.dart';
+import 'package:esme2526/screens/user_bets_page.dart';
 import 'package:flutter/material.dart';
 
 class UserPage extends StatefulWidget {
@@ -64,7 +65,7 @@ class _UserPageState extends State<UserPage> {
       case 0:
         return HomePage();
       case 1:
-        return Center(child: Text('Bets'));
+        return UserBetsPage();
       case 2:
         // Pass the user object from build via a property or cache it
         UserUseCase userUseCase = UserUseCase();

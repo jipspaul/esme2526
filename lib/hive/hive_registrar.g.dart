@@ -9,6 +9,7 @@ extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
     registerAdapter(BetAdapter());
     registerAdapter(DataBetAdapter());
+    registerAdapter(UserBetAdapter());
   }
 }
 
@@ -16,5 +17,6 @@ extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
     registerAdapter(BetAdapter());
     registerAdapter(DataBetAdapter());
+    registerAdapter(UserBetAdapter());
   }
 }

@@ -1,4 +1,6 @@
+import 'package:esme2526/domain/user_bet_case.dart';
 import 'package:esme2526/models/bet.dart';
+import 'package:esme2526/models/user_bet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -35,7 +37,24 @@ class BetPage extends StatelessWidget {
                   content: Text("Gain potential: ${bet.odds * int.parse(textEditingController.text)}"),
                   actions: [
                     TextButton(onPressed: () => Navigator.of(context).pop(false), child: Text("Cancel")),
-                    TextButton(onPressed: () => Navigator.of(context).pop(true), child: Text("Confirm")),
+                    TextButton(
+                      onPressed: () async {
+                        print("Bet placed");
+                        await UserBetCase().createUserBet(
+                          UserBet(
+                            id: DateTime.now().millisecondsSinceEpoch.toString(),
+                            userId: "1",
+                            betId: bet.id,
+                            amount: int.parse(textEditingController.text),
+                            odds: bet.odds,
+                            payout: bet.odds * int.parse(textEditingController.text),
+                            createdAt: DateTime.now(),
+                          ),
+                        );
+                        Navigator.of(context).pop(true);
+                      },
+                      child: Text("Confirm"),
+                    ),
                   ],
                 ),
               );

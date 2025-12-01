@@ -13,9 +13,7 @@ class BetAdapter extends TypeAdapter<Bet> {
   @override
   Bet read(BinaryReader reader) {
     final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
+    final fields = <int, dynamic>{for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read()};
     return Bet(
       id: fields[0] as String,
       title: fields[1] as String,
@@ -51,11 +49,7 @@ class BetAdapter extends TypeAdapter<Bet> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is BetAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is BetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
 
 class DataBetAdapter extends TypeAdapter<DataBet> {
@@ -65,15 +59,8 @@ class DataBetAdapter extends TypeAdapter<DataBet> {
   @override
   DataBet read(BinaryReader reader) {
     final numOfFields = reader.readByte();
-    final fields = <int, dynamic>{
-      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
-    };
-    return DataBet(
-      id: fields[0] as String,
-      videoUrl: fields[1] as String,
-      imgUrl: fields[2] as String,
-      metadata: fields[3] as String?,
-    );
+    final fields = <int, dynamic>{for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read()};
+    return DataBet(id: fields[0] as String, videoUrl: fields[1] as String, imgUrl: fields[2] as String, metadata: fields[3] as String?);
   }
 
   @override
@@ -94,9 +81,51 @@ class DataBetAdapter extends TypeAdapter<DataBet> {
   int get hashCode => typeId.hashCode;
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DataBetAdapter &&
-          runtimeType == other.runtimeType &&
-          typeId == other.typeId;
+  bool operator ==(Object other) => identical(this, other) || other is DataBetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
+}
+
+class UserBetAdapter extends TypeAdapter<UserBet> {
+  @override
+  final typeId = 2;
+
+  @override
+  UserBet read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read()};
+    return UserBet(
+      id: fields[0] as String,
+      userId: fields[1] as String,
+      betId: fields[2] as String,
+      amount: (fields[3] as num).toInt(),
+      odds: (fields[4] as num).toDouble(),
+      payout: (fields[5] as num).toDouble(),
+      createdAt: fields[6] as DateTime,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, UserBet obj) {
+    writer
+      ..writeByte(7)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.userId)
+      ..writeByte(2)
+      ..write(obj.betId)
+      ..writeByte(3)
+      ..write(obj.amount)
+      ..writeByte(4)
+      ..write(obj.odds)
+      ..writeByte(5)
+      ..write(obj.payout)
+      ..writeByte(6)
+      ..write(obj.createdAt);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) => identical(this, other) || other is UserBetAdapter && runtimeType == other.runtimeType && typeId == other.typeId;
 }
